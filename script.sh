@@ -95,6 +95,7 @@ tail_() {
 # seq_ <count>
 seq_() {
   local a=1
+#  local a=2 l=1
   while true; do
 #    l="$l $a"
     echo "$a"
