@@ -66,6 +66,11 @@ cp_() {
   cat_ "$1" > "$2"
 }
 
+# mv_ <src> <dst>
+mv_() {
+  rename "$1" "$2"
+}
+
 # head_ -n <count> <FILE>
 head_() {
   local a=1
