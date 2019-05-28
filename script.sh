@@ -146,4 +146,9 @@ rev_() {
   echo "$part"
 }
 
-
+# readlink [-f] <link/file/dir>
+readlink_() {
+  local file
+  [ "$2" ] && file="$2" || file="$1"
+  realpath "$file"
+}
