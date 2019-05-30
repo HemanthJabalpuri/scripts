@@ -152,3 +152,18 @@ readlink_() {
   [ "$2" ] && file="$2" || file="$1"
   realpath "$file"
 }
+
+# which_ command
+which_() {
+  local entry
+  for i in ${PATH//:/ }; do
+    if [ -f "$i/$1" ]; then
+      entry="$i/$1"; break
+    else
+      entry=""
+    fi
+  done
+  [ -z "$entry" ] && return 1
+  echo "$entry"
+}
+
