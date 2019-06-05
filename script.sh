@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # Some common busybox utils using shell
-# grep ls dirname basename touch cat cp head tail seq cut rev
+# grep ls dirname basename touch cat cp head tail seq cut rev readlink which mv
 # above applets are made with very common options
 
 # grep_ <-m|-q> #only used in piping
@@ -112,26 +112,36 @@ seq_() {
 
 # cut_ -d <delimiter> -f <field count> <string>
 cut_() {
-  local count pos char part part1 req2 reqcount req
-  count="${#5}"
-  for i in `seq_ $count`; do
-    pos="$((i-1))"
-    char="${5:$pos:1}"
-    part="$part1"
-    part1="$part1$char"
-    if [ "$i" -eq "$count" ]; then
-      req2="${part1##*$2}"
+#  local count pos char part part1 reqcount req
+#  count="${#5}"
+#  for i in `seq_ $count`; do
+#    pos="$((i-1))"
+#    char="${5:$pos:1}"
+#    part="$part1"
+#    part1="$part1$char"
+#    if [ "$i" -eq "$count" ]; then
+#      req="${part1##*$2}"
+#    fi
+#    if [ "$char" == "$2" ]; then
+#      reqcount="$((reqcount+1))"
+#      if [ "$reqcount" -eq "$4" ]; then
+#        req="${part##*$2}"
+#        break
+#      fi
+#    fi
+#  done
+#  echo "$req"
+  local OIFS
+  OIFS="$IFS"
+  IFS="$2"
+  a=1
+  for i in $5; do
+    if [ $a -eq $4 ]; then
+      echo "$i"; break
     fi
-    if [ "$char" == "$2" ]; then
-      reqcount="$((reqcount+1))"
-      if [ "$reqcount" -eq "$4" ]; then
-        req="${part##*$2}"
-        req2="${req%%$2*}"
-        break
-      fi
-    fi
+    a=$((a+1))
   done
-  echo "$req2"
+  IFS="$OIFS"
 }
 
 # rev_ <string>
