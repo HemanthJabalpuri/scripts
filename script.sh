@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # Some common busybox utils using shell
 # grep ls dirname basename touch cat cp head tail seq cut rev readlink which mv
-# above applets are made with very common options
+# above applets are made with very common options that will work wil mksh and bash
 
 # grep_ <-m|-q> #only used in piping
 grep_() {
@@ -36,17 +36,27 @@ ls_() {
 }
 
 # dirname_ <PATH>
-dirname_() {
-  local dir
-  case "$1" in
-    */*) dir=${1%/*}; [ -z $dir ] && echo "/" || echo $dir ;;
-    *) echo "." ;;
-  esac
+dirname() {
+  local dir="$1"
+  local tdir="${dir%/}"
+  while [ "$tdir" != "$dir" ]; do
+    tdir="$dir"
+    dir="${tdir%/}"
+  done
+  echo "${dir%/*}"
 }
 
-# basename_ <PATH>
-basename_() {
-  echo "${1##*/}"
+# basename_ <PATH> [<suffix>]
+basename() {
+  local path="$1"
+  local suffix="$2"
+  local tpath="${path%/}"
+  while [ "$tpath" != "$path" ]; do
+    tpath="$path"
+    path="${tpath%/}"
+  done
+  path="${path##*/}"
+  echo "${path%$suffix}"
 }
 
 # touch_ <FILE>
@@ -63,7 +73,7 @@ cat_() {
 
 # cp_ <src> <dst>
 cp_() {
-  cat_ "$1" > "$2"
+  cat "$1" > "$2"
 }
 
 # mv_ <src> <dst>
@@ -163,17 +173,23 @@ readlink_() {
   realpath "$file"
 }
 
-# which_ command
+# which_ [-a] command
 which_() {
-  local entry
-  for i in ${PATH//:/ }; do
-    if [ -f "$i/$1" ]; then
-      entry="$i/$1"; break
-    else
-      entry=""
+  a=""; file="$1"
+  if [ "$1" = "-a" ]; then
+    a=1; file="$2"
+  fi
+  path="$PATH"
+  case "$path" in :*) path="${PWD}${path}"; esac
+  case "$path" in *:) path="${path}${PWD}"; esac
+  path="${path//::/:${PWD}:}"
+  path="${path//:/ }"
+  for x in $path; do
+    if [ -x "$x/$file" ]; then
+      echo "$x/$file"; found=1
+      [ -z "$a" ] && break
     fi
   done
-  [ -z "$entry" ] && return 1
-  echo "$entry"
+  echo "$found"
+  [ "$found" = 1 ] || return 1
 }
-
