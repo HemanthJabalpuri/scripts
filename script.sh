@@ -193,3 +193,47 @@ which_() {
   echo "$found"
   [ "$found" = 1 ] || return 1
 }
+
+#only whole numbers
+test_lt() {
+  result="$((${1}-${2}))"
+  echo $result
+  case $result in
+    -*) return 0;;
+  esac
+  return 1
+}
+
+#only whole numbers
+test_gt() {
+  result="$((${2}-${1}))"
+  echo $result
+  case $result in
+    -*) return 0;;
+  esac
+  return 1
+}
+
+test_eq() {
+  case "$1" in "$2") return 0;; esac
+  return 1
+}
+
+test_z() {
+  count=1
+  for i in $1; do
+    count=0
+  done
+  return $count
+}
+
+test_f() {
+  ls "$1" >/dev/null 2>&1 || return 1
+  test_d "$1" || return 0
+  return 1
+}
+
+test_d() {
+  (cd "$1") 2>/dev/null && return 0
+  return 1
+}
